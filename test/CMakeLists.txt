@@ -122,6 +122,7 @@ set(libsolidity_sources
     libsolidity/analysis/FunctionCallGraph.cpp
     libsolidity/interface/FileReader.cpp
 	libsolidity/interface/MetadataSettings.cpp
+	libsolidity/interface/StandardJSONInput.cpp
     libsolidity/ASTPropertyTest.h
     libsolidity/ASTPropertyTest.cpp
 )
