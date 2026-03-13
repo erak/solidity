@@ -134,9 +134,11 @@ set(libsolidity_util_sources
     libsolidity/util/Common.h
     libsolidity/util/ContractABIUtils.cpp
     libsolidity/util/ContractABIUtils.h
-    libsolidity/util/SoltestErrors.h
+	libsolidity/util/StandardJSONOutput.cpp
+	libsolidity/util/StandardJSONOutput.h
+	libsolidity/util/SoltestErrors.h
     libsolidity/util/SoltestTypes.h
-    libsolidity/util/TestFileParser.cpp
+	libsolidity/util/TestFileParser.cpp
     libsolidity/util/TestFileParser.h
     libsolidity/util/TestFileParserTests.cpp
     libsolidity/util/TestFunctionCall.cpp
