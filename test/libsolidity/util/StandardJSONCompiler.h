@@ -114,14 +114,26 @@ template<StandardJSONOutputType Output = output::StandardJSONOutput>
 class StandardJSONCompiler
 {
 public:
+	StandardJSONCompiler() = default;
+	explicit StandardJSONCompiler(boost::filesystem::path _externalCompiler):
+		m_externalCompiler(_externalCompiler)
+	{}
+
 	/// Takes the current compiler input, requests the compiler under test to compile
     /// and stores its output.
 	/// @returns the stored output
 	/// @param _input to pass to the compiler
     Output const& compile(StandardJSONInput const& _input)
 	{
-		auto output = StandardCompiler{}.compile(_input);
-		m_output.emplace(StandardJSONOutputExt{std::move(output)});
+		if (m_externalCompiler)
+		{
+			// TODO: Call external compiler via IPC
+		}
+		else
+		{
+			auto output = StandardCompiler{}.compile(_input);
+			m_output.emplace(StandardJSONOutputExt{std::move(output)});
+		}
 		return this->output();
 	}
 
@@ -133,6 +145,8 @@ public:
 	}
 
 private:
+	/// If a path is set, this instance will try to call the external compiler via IPC.
+	std::optional<boost::filesystem::path> m_externalCompiler;
     /// Last generated output. Will be none before initial compilation.
     std::optional<Output> m_output;
 };

@@ -43,7 +43,14 @@ class SolidityExecutionFramework: public ExecutionFramework
 {
 
 public:
-	SolidityExecutionFramework(): m_showMetadata(CommonOptions::get().showMetadata) {}
+	SolidityExecutionFramework():
+		m_showMetadata(CommonOptions::get().showMetadata)
+	{
+		auto externalCompiler = CommonOptions::get().solcPath;
+		if (externalCompiler)
+			m_compiler = StandardJSONCompiler<StandardJSONOutputExt>{*externalCompiler};
+	}
+
 	explicit SolidityExecutionFramework(
 		langutil::EVMVersion _evmVersion,
 		std::optional<uint8_t> _eofVersion,
@@ -54,7 +61,11 @@ public:
 		m_eofVersion(_eofVersion),
 		m_showMetadata(CommonOptions::get().showMetadata),
 		m_appendCBORMetadata(_appendCBORMetadata)
-	{}
+	{
+		auto externalCompiler = CommonOptions::get().solcPath;
+		if (externalCompiler)
+			m_compiler = StandardJSONCompiler<StandardJSONOutputExt>{*externalCompiler};
+	}
 
 	bytes const& compileAndRunWithoutCheck(
 		std::map<std::string, std::string> const& _sourceCode,
