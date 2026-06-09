@@ -128,6 +128,40 @@ public:
 		if (m_externalCompiler)
 		{
 			// TODO: Call external compiler via IPC
+
+			bp::opstream input;
+			bp::ipstream output;
+			bp::ipstream error;
+
+			bp::child c(m_externalCompiler,
+                    bp::std_in < input,
+                    bp::std_out > output,
+                    bp::std_err > error);
+
+			// Write JSON to stdin
+			input << jsonInput;
+			input.pipe().close();
+
+			// Read JSON response from stdout
+			std::string result;
+			std::string line;
+			while (std::getline(output, line)) {
+				result += line + "\n";
+			}
+
+			// Capture any errors
+			std::string errorMsg;
+			while (std::getline(error, line)) {
+				errorMsg += line + "\n";
+			}
+
+			c.wait();
+
+			if (c.exit_code() != 0) {
+				throw std::runtime_error("External compiler failed: " + errorMsg);
+			}
+
+			return result;
 		}
 		else
 		{
