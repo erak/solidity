@@ -31,8 +31,13 @@
 #include <libsolidity/interface/DebugSettings.h>
 #include <libsolidity/interface/StandardCompiler.h>
 #include <libsolidity/interface/StandardJSONInput.h>
+#include <libsolidity/util/SoltestErrors.h>
 
+#include <boost/asio.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/process/v2.hpp>
+#include <boost/process/v2/process.hpp>
+#include <boost/process/v2/stdio.hpp>
 
 #include <range/v3/algorithm.hpp>
 #include <range/v3/range/conversion.hpp>
@@ -115,8 +120,8 @@ class StandardJSONCompiler
 {
 public:
 	StandardJSONCompiler() = default;
-	explicit StandardJSONCompiler(boost::filesystem::path _externalCompiler):
-		m_externalCompiler(_externalCompiler)
+	explicit StandardJSONCompiler(boost::filesystem::path _compilerPath):
+		m_compilerPath(_compilerPath)
 	{}
 
 	/// Takes the current compiler input, requests the compiler under test to compile
@@ -125,9 +130,46 @@ public:
 	/// @param _input to pass to the compiler
     Output const& compile(StandardJSONInput const& _input)
 	{
-		if (m_externalCompiler)
+		if (m_compilerPath)
 		{
-			// TODO: Call external compiler via IPC
+			namespace bp = boost::process::v2;
+			namespace asio = boost::asio;
+
+			asio::io_context ioCtx;
+			asio::readable_pipe stdoutPipe{ioCtx};
+			asio::writable_pipe stdinPipe{ioCtx};
+
+			boost::system::error_code error;
+			bp::process child{
+				ioCtx,
+				*m_compilerPath,
+				{"--standard-json"},
+				bp::process_stdio{stdinPipe, stdoutPipe, {}}
+			};
+			soltestAssert(child.running(), "Failed to launch the external compiler '" + m_compilerPath->string() + "'.");
+
+			Json jsonInput = _input;
+			asio::write(stdinPipe, asio::buffer(jsonInput.dump()), error);
+			stdinPipe.close();
+			soltestAssert(!error, "Error writing to stdin.");
+
+			std::string output;
+			asio::read(stdoutPipe, asio::dynamic_buffer(output), error);
+			// error::eof is expected — the child closed its end.
+			soltestAssert(!error || error == asio::error::eof, "Error reading from stdout.");
+
+
+			child.wait();
+			soltestAssert(
+				child.exit_code() == 0,
+				"External compiler exited unexpectedly with code '" + std::to_string(child.exit_code()) + "'"
+			);
+
+			while (!output.empty() && (output.back() == '\n' || output.back() == '\r'))
+				output.pop_back();
+
+			Output jsonOutput{Json::parse(output)};
+			m_output.emplace(StandardJSONOutputExt{std::move(jsonOutput)});
 		}
 		else
 		{
@@ -146,7 +188,7 @@ public:
 
 private:
 	/// If a path is set, this instance will try to call the external compiler via IPC.
-	std::optional<boost::filesystem::path> m_externalCompiler;
+	std::optional<boost::filesystem::path> m_compilerPath;
     /// Last generated output. Will be none before initial compilation.
     std::optional<Output> m_output;
 };
