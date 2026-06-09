@@ -47,9 +47,9 @@ public:
 	SolidityExecutionFramework():
 		m_showMetadata(CommonOptions::get().showMetadata)
 	{
-		auto externalCompiler = CommonOptions::get().solcPath;
-		if (externalCompiler)
-			m_compiler = StandardJSONCompiler<StandardJSONOutputExt>{*externalCompiler};
+		auto solcPath = CommonOptions::get().solcPath;
+		if (solcPath)
+			m_compiler = StandardJSONCompiler<StandardJSONOutputExt>{*solcPath};
 	}
 
 	explicit SolidityExecutionFramework(
@@ -63,9 +63,9 @@ public:
 		m_showMetadata(CommonOptions::get().showMetadata),
 		m_appendCBORMetadata(_appendCBORMetadata)
 	{
-		auto externalCompiler = CommonOptions::get().solcPath;
-		if (externalCompiler)
-			m_compiler = StandardJSONCompiler<StandardJSONOutputExt>{*externalCompiler};
+		auto solcPath = CommonOptions::get().solcPath;
+		if (solcPath)
+			m_compiler = StandardJSONCompiler<StandardJSONOutputExt>{*solcPath};
 	}
 
 	bytes const& compileAndRunWithoutCheck(
