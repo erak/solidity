@@ -109,6 +109,10 @@ private:
 	std::map<std::string, std::vector<ContractName>> m_compilationOrder;
 };
 
+/**
+ * Concept that checks if a type is constructible from StandardJSONOutput.
+ * Types satisfying this concept can wrap or be initialized with a standard JSON output handler.
+ */
 template<typename T>
 concept StandardJSONOutputType = std::constructible_from<T, output::StandardJSONOutput>;
 
@@ -169,12 +173,12 @@ public:
 				output.pop_back();
 
 			Output jsonOutput{Json::parse(output)};
-			m_output.emplace(StandardJSONOutputExt{std::move(jsonOutput)});
+			m_output.emplace(Output{std::move(jsonOutput)});
 		}
 		else
 		{
 			auto output = StandardCompiler{}.compile(_input);
-			m_output.emplace(StandardJSONOutputExt{std::move(output)});
+			m_output.emplace(Output{std::move(output)});
 		}
 		return this->output();
 	}
