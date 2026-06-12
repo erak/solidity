@@ -1918,7 +1918,7 @@ Json StandardCompiler::compileYul(InputsAndSettings _inputsAndSettings)
 	return output;
 }
 
-Json StandardCompiler::compile(Json const& _input) noexcept
+void StandardCompiler::compile(Json const& _input, Json& _output) noexcept
 {
 	YulStringRepository::reset();
 
@@ -1926,31 +1926,38 @@ Json StandardCompiler::compile(Json const& _input) noexcept
 	{
 		auto parsed = parseInput(_input);
 		if (std::holds_alternative<Json>(parsed))
-			return std::get<Json>(std::move(parsed));
+			_output = std::get<Json>(std::move(parsed));
 		InputsAndSettings settings = std::get<InputsAndSettings>(std::move(parsed));
 		if (settings.language == "Solidity")
-			return compileSolidity(std::move(settings));
+			_output = compileSolidity(std::move(settings));
 		else if (settings.language == "Yul")
-			return compileYul(std::move(settings));
+			_output = compileYul(std::move(settings));
 		else if (settings.language == "SolidityAST")
-			return compileSolidity(std::move(settings));
+			_output = compileSolidity(std::move(settings));
 		else if (settings.language == "EVMAssembly")
-			return importEVMAssembly(std::move(settings));
+			_output = importEVMAssembly(std::move(settings));
 		else
-			return formatFatalError(Error::Type::JSONError, "Only \"Solidity\", \"Yul\", \"SolidityAST\" or \"EVMAssembly\" is supported as a language.");
+			_output = formatFatalError(Error::Type::JSONError, "Only \"Solidity\", \"Yul\", \"SolidityAST\" or \"EVMAssembly\" is supported as a language.");
 	}
 	catch (UnimplementedFeatureError const& _exception)
 	{
 		solAssert(_exception.comment(), "Unimplemented feature errors must include a message for the user");
-		return formatFatalError(Error::Type::UnimplementedFeatureError, stringOrDefault(_exception.comment()));
+		_output = formatFatalError(Error::Type::UnimplementedFeatureError, stringOrDefault(_exception.comment()));
 	}
 	catch (...)
 	{
-		return formatFatalError(
+		_output = formatFatalError(
 			Error::Type::InternalCompilerError,
 			"Uncaught exception:\n" + boost::current_exception_diagnostic_information()
 		);
 	}
+}
+
+Json StandardCompiler::compile(Json const& _input) noexcept
+{
+	Json output;
+	compile(_input, output);
+	return output;
 }
 
 std::string StandardCompiler::compile(std::string const& _input) noexcept

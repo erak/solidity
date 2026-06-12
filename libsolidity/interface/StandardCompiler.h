@@ -59,6 +59,11 @@ public:
 	/// Sets all input parameters according to @a _input which conforms to the standardized input
 	/// format, performs compilation and returns a standardized output.
 	Json compile(Json const& _input) noexcept;
+
+	/// Sets all input parameters according to @a _input which conforms to the standardized input
+	/// format, performs compilation and writes a standardized output to the output parameter.
+	void compile(Json const& _input, Json& _output) noexcept;
+
 	/// Parses input as JSON and performs the above processing steps, returning a serialized JSON
 	/// output. Parsing errors are returned as regular errors.
 	std::string compile(std::string const& _input) noexcept;
