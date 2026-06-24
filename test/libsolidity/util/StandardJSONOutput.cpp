@@ -108,13 +108,22 @@ void output::from_json(Json const& _json, ABIConstructor& _constructor)
     _constructor.inputs = _json.at("inputs").get<std::vector<ABIParameter>>();
 }
 
-
 void output::from_json(Json const& _json, ABIFunction& _function)
 {
     _function.name = _json.at("name");
     _function.stateMutability = stateMutabilityFromString(_json.at("stateMutability"));;
     _function.inputs = _json.at("inputs").get<std::vector<ABIParameter>>();
     _function.outputs = _json.at("outputs").get<std::vector<ABIParameter>>();
+}
+
+void output::from_json(Json const& _json, ABIFallback& _fallback)
+{
+	_fallback.stateMutability = stateMutabilityFromString(_json.at("stateMutability"));
+}
+
+void output::from_json(Json const& _json, ABIReceive& _receive)
+{
+	_receive.stateMutability = stateMutabilityFromString(_json.at("stateMutability"));
 }
 
 void output::from_json(Json const& _json, ABIEvent& _event)
@@ -137,6 +146,10 @@ void output::from_json(Json const& _json, ABIEntry& _entry)
 		_entry = _json.get<ABIConstructor>();
 	else if (type == "function")
 		_entry = _json.get<ABIFunction>();
+	else if (type == "fallback")
+		_entry = _json.get<ABIFallback>();
+	else if (type == "receive")
+		_entry = _json.get<ABIReceive>();
 	else if (type == "event")
 		_entry = _json.get<ABIEvent>();
 	else if (type == "error")

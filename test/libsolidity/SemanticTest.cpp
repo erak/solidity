@@ -20,6 +20,7 @@
 
 #include <test/Common.h>
 #include <test/libsolidity/util/BytesUtils.h>
+#include <test/libsolidity/util/ContractABIUtils.h>
 #include <test/libsolidity/util/StandardJSONCompiler.h>
 
 #include <libsolutil/StringUtils.h>
@@ -58,74 +59,6 @@ using namespace boost::algorithm;
 using namespace boost::unit_test;
 using namespace std::string_literals;
 namespace fs = boost::filesystem;
-
-namespace
-{
-	std::string formatInputType(output::ABIParameter const& _input)
-	{
-		if (_input.type == "tuple")
-		{
-			soltestAssert(_input.components, "key \"components\" is not allowed to be empty for tuples");
-			auto types = _input.components.value() | ranges::views::transform([&](auto const& input) {
-				return formatInputType(input);
-			}) | ranges::to<strings>;
-			return "(" + boost::algorithm::join(types, ",") + ")";
-		}
-		return _input.type;
-	}
-
-	strings formatInputTypes(output::ABIEvent const& _event, bool _indexed)
-	{
-		return _event.inputs | ranges::views::filter([&](auto const& input) {
-			return input.indexed == _indexed;
-		}) | ranges::views::transform([&](auto const& input) {
-			return formatInputType(input);
-		}) | ranges::to<strings>();
-	}
-
-	std::string formatSignature(output::ABIEvent const& _event)
-	{
-		auto signatureTypes = _event.inputs | ranges::views::transform([&](auto const& input) {
-			return formatInputType(input);
-		}) | ranges::to<strings>;
-		return _event.name + "(" + boost::algorithm::join(signatureTypes, ",") + ")";
-	}
-
-	std::string formatParameter(output::ABIEvent const* _event, bool _indexed, size_t _index, bytes const& _data)
-	{
-		auto isPrintableASCII = [](bytes const& s)
-		{
-			bool zeroes = true;
-			for (auto c: s)
-			{
-				if (static_cast<unsigned>(c) != 0x00)
-				{
-					zeroes = false;
-					if (static_cast<unsigned>(c) <= 0x1f || static_cast<unsigned>(c) >= 0x7f)
-						return false;
-				} else
-					break;
-			}
-			return !zeroes;
-		};
-
-		ABIType abiType(ABIType::Type::Hex);
-		if (isPrintableASCII(_data))
-			abiType = ABIType(ABIType::Type::String);
-		if (_event)
-		{
-			auto indexedTypes = formatInputTypes(*_event, true);
-			auto nonIndexedTypes = formatInputTypes(*_event, false);
-			auto const& types = _indexed ? indexedTypes : nonIndexedTypes;
-			if (_index < types.size())
-			{
-				if (types.at(_index) == "bool")
-					abiType = ABIType(ABIType::Type::Boolean);
-			}
-		}
-		return BytesUtils::formatBytes(_data, abiType);
-	}
-}
 
 std::ostream& solidity::frontend::test::operator<<(std::ostream& _output, RequiresYulOptimizer _requiresYulOptimizer)
 {
@@ -327,7 +260,7 @@ std::vector<std::string> SemanticTest::eventSideEffectHook(FunctionCall const&) 
 		for (h256 const& topic: log.topics)
 		{
 			if (!event || index != 0)
-				eventStrings.push_back("#" + formatParameter(event, true, index, topic.asBytes()));
+				eventStrings.push_back("#" + formatEventParameter(event, true, index, topic.asBytes()));
 			++index;
 		}
 
@@ -336,7 +269,7 @@ std::vector<std::string> SemanticTest::eventSideEffectHook(FunctionCall const&) 
 		{
 			auto begin = log.data.begin() + static_cast<long>(index * 32);
 			bytes const& data = bytes{begin, begin + 32};
-			eventStrings.emplace_back(formatParameter(event, false, index, data));
+			eventStrings.emplace_back(formatEventParameter(event, false, index, data));
 		}
 
 		if (!eventStrings.empty())
@@ -532,7 +465,7 @@ TestCase::TestResult SemanticTest::runTest(
 			test.setRawBytes(std::move(output));
 
 			if (test.call().kind != FunctionCall::Kind::LowLevel)
-				test.setContractABI(Json{contract->raw().at("abi")});
+				test.setContractABI(output::ABI{contract->abi()});
 		}
 
 		std::vector<std::string> effects;

@@ -126,7 +126,7 @@ struct ABIConstructor
 {
 	/// The constrcutor's input parameters.
 	std::vector<ABIParameter> inputs;
-	/// The state mutability of the constructor: "pure", "view", "nonpayable", or "payable".
+	/// The state mutability of the constructor.
 	StateMutability stateMutability;
 };
 
@@ -138,9 +138,22 @@ struct ABIFunction
 	std::vector<ABIParameter> inputs;
 	/// The function's output parameters.
 	std::vector<ABIParameter> outputs;
-	/// The state mutability of the function: "pure", "view", "nonpayable", or "payable".
+	/// The state mutability of the function.
 	StateMutability stateMutability;
 };
+
+struct ABIFallback
+{
+	/// State mutability of the fallback function.
+	StateMutability stateMutability;
+};
+
+struct ABIReceive
+{
+	/// State mutability of the fallback function.
+	StateMutability stateMutability;
+};
+
 
 struct ABIEvent
 {
@@ -188,7 +201,7 @@ struct EVM
 };
 
 /// A single entry in the contract ABI, either an event or a function.
-using ABIEntry = std::variant<ABIConstructor, ABIFunction, ABIEvent, ABIError>;
+using ABIEntry = std::variant<ABIConstructor, ABIFunction, ABIFallback, ABIReceive, ABIEvent, ABIError>;
 using ABI = std::vector<ABIEntry>;
 
 /**
@@ -246,6 +259,8 @@ void from_json(Json const&, Source&);
 void from_json(Json const&, ABIParameter&);
 void from_json(Json const&, ABIConstructor&);
 void from_json(Json const&, ABIFunction&);
+void from_json(Json const&, ABIFallback&);
+void from_json(Json const&, ABIReceive&);
 void from_json(Json const&, ABIEvent&);
 void from_json(Json const&, ABIError&);
 void from_json(Json const&, ABIEntry&);
