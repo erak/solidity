@@ -62,6 +62,7 @@ bytes SolidityExecutionFramework::multiSourceCompileContract(
 	std::optional<std::string> const& _mainSourceName
 )
 {
+	std::cout << "SolidityExecutionFramework::multiSourceCompileContract() - begin" << std::endl;
 	if (_mainSourceName.has_value())
 		solAssert(_sourceCode.find(_mainSourceName.value()) != _sourceCode.end(), "");
 
@@ -142,6 +143,8 @@ bytes SolidityExecutionFramework::multiSourceCompileContract(
 
 	if (m_showMetadata)
 		std::cout << "metadata: " << contract->metadata() << std::endl;
+
+	std::cout << "SolidityExecutionFramework::multiSourceCompileContract() - end" << std::endl;
 
 	return contract->evm().bytecode.object;
 }

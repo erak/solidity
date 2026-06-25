@@ -130,6 +130,7 @@ public:
 	/// @param _input to pass to the compiler
     Output const& compile(StandardJSONInput const& _input)
 	{
+		std::cout << "StandardJSONCompiler::compile() - begin" << std::endl;
 		if (m_compilerPath)
 		{
 			namespace bp = boost::process::v2;
@@ -176,6 +177,7 @@ public:
 			auto output = StandardCompiler{}.compile(_input);
 			m_output.emplace(StandardJSONOutputExt{std::move(output)});
 		}
+		std::cout << "StandardJSONCompiler::compile() - end" << std::endl;
 		return this->output();
 	}
 

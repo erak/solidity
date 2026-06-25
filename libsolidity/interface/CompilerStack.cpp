@@ -113,6 +113,7 @@ CompilerStack::CompilerStack(ReadCallback::Callback _readFile):
 	m_objectOptimizer(std::make_shared<yul::ObjectOptimizer>()),
 	m_errorReporter{m_errorList}
 {
+	std::cout << "CompilerStack::CompilerStack(): - count: " << g_compilerStackCounts << std::endl;
 	// Because TypeProvider is currently a singleton API, we must ensure that
 	// no more than one entity is actually using it at a time.
 	solAssert(g_compilerStackCounts == 0, "You shall not have another CompilerStack aside me.");

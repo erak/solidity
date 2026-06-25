@@ -21,6 +21,7 @@
  * Unit tests for the gas estimator.
  */
 
+#include "libsolidity/interface/CompilerStack.h"
 #include <test/libsolidity/SolidityExecutionFramework.h>
 
 #include <test/libsolidity/util/Common.h>
@@ -42,25 +43,70 @@ using namespace solidity::test;
 namespace solidity::frontend::test
 {
 
+/// All test suites inheriting from `SolidityExecutionFramework` do compile through the standard JSON interface
+/// aka. `StandardCompiler`. This suite is an exception since we can't easily restore the assembly items,
+/// that are needed to feed into the gas meter, from the JSON output.
+///
+/// TODO: The gas meter tests still use the internal interface aka. `CompilerStack` for now. Re-write as semantic tests
+/// that compile with `--gas` and test against that output.
 class GasMeterTestFramework: public SolidityExecutionFramework
 {
 public:
 	void compile(std::string const& _sourceCode)
 	{
-		m_compilerInput = StandardJSONInput{
-			.sources = {{"", withPreamble(_sourceCode)}},
-			.settings = input::Settings{
-				.optimizer = input::Optimizer{
-					.enable = CommonOptions::get().optimize,
-					.runs = 200,
-					.details = input::OptimizerDetails{}
-				},
-				.evmVersion = m_evmVersion,
-			}
-		};
-		m_compiler.compile(m_compilerInput);
+		std::cout << "GasMeterTestFramework::compile() - being" << std::endl;
+		// We deliberately use the internal interface here, see comment above.
+		m_compilerStack.reset();
+		m_compilerStack.setSources({{"", "pragma solidity >=0.0;\n"
+				"// SPDX-License-Identifier: GPL-3.0\n" + _sourceCode}});
+		m_compilerStack.setOptimiserSettings(solidity::test::CommonOptions::get().optimize);
+		m_compilerStack.setEVMVersion(m_evmVersion);
 
-		BOOST_REQUIRE_MESSAGE(m_compiler.output().success(), "Compiling contract failed");
+		BOOST_REQUIRE_MESSAGE(m_compilerStack.compile(), "Compiling contract failed");
+
+		// m_compilerInput = StandardJSONInput{
+		// 	.sources = {{"", withPreamble(_sourceCode)}},
+		// 	.settings = input::Settings{
+		// 		.optimizer = input::Optimizer{
+		// 			.enable = CommonOptions::get().optimize,
+		// 			.runs = 200,
+		// 			.details = input::OptimizerDetails{}
+		// 		},
+		// 		.evmVersion = m_evmVersion,
+		// 	}
+		// };
+		// m_compiler.compile(m_compilerInput);
+
+		// BOOST_REQUIRE_MESSAGE(m_compiler.output().success(), "Compiling contract failed");
+	}
+
+	bytes const& compileAndRunWithoutCheck(
+		std::map<std::string, std::string> const& _sourceCode,
+		u256 const& _value = 0,
+		std::string const& _contractName = "",
+		bytes const& _arguments = {},
+		std::map<std::string, Address> const& _libraryAddresses = {},
+		std::optional<std::string> const& _mainSourceName = std::nullopt
+	) override
+	{
+		bytes bytecode = multiSourceCompileContract(_sourceCode, _contractName, _libraryAddresses, _mainSourceName);
+		sendMessage(bytecode, _arguments, true, _value);
+		return m_output;
+	}
+
+
+	bytes multiSourceCompileContract(
+		std::map<std::string, std::string> const&,
+		std::string const&,
+		std::map<std::string, Address> const&,
+		std::optional<std::string> const&
+	)
+	{
+		std::cout << "GasMeterTestFramework::multiSourceCompileContract() - begin" << std::endl;
+
+
+		std::cout << "GasMeterTestFramework::multiSourceCompileContract() - end" << std::endl;
+		return bytes{};
 	}
 
 	void testCreationTimeGas(std::string const& _sourceCode, u256 const& _tolerance = u256(0))
@@ -68,21 +114,22 @@ public:
 		compileAndRun(_sourceCode);
 
 		auto state = std::make_shared<KnownState>();
-		auto const* contract = m_compiler.output().contract();
-
-		soltestAssert(contract);
-
 		PathGasMeter meter(
-			{}, // TODO(erikli): Fix!
-			CommonOptions::get().evmVersion()
+			*m_compilerStack.assemblyItems(m_compilerStack.lastContractName()),
+			solidity::test::CommonOptions::get().evmVersion()
 		);
+		// auto const* contract = m_compiler.output().contract();
+		// soltestAssert(contract);
+
 		GasMeter::GasConsumption gas = meter.estimateMax(0, state);
-		bytes const& object = contract->evm().bytecode.object;
-		u256 bytecodeSize(object.size());
+		// bytes const& object = contract->evm().bytecode.object;
+		// u256 bytecodeSize(object.size());
+		u256 bytecodeSize(m_compilerStack.runtimeObject(m_compilerStack.lastContractName()).bytecode.size());
 		// costs for deployment
 		gas += bytecodeSize * GasCosts::createDataGas;
 		// costs for transaction
-		gas += gasForTransaction(object, true);
+		gas += gasForTransaction(m_compilerStack.object(m_compilerStack.lastContractName()).bytecode, true);
+		// gas += gasForTransaction(object, true);
 
 		BOOST_REQUIRE(!gas.isInfinite);
 		BOOST_CHECK_LE(m_gasUsed, gas.value);
@@ -125,6 +172,9 @@ public:
 			gas += i != 0 ? GasCosts::txDataNonZeroGas(evmVersion) : GasCosts::txDataZeroGas;
 		return gas;
 	}
+
+private:
+	CompilerStack m_compilerStack;
 };
 
 BOOST_FIXTURE_TEST_SUITE(GasMeterTests, GasMeterTestFramework)
