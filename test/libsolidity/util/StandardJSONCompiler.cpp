@@ -30,14 +30,14 @@ using namespace solidity::util;
 
 std::vector<output::Contract const*> const StandardJSONOutputExt::contracts() const
 {
-	return m_base.contracts() | ranges::views::values | ranges::views::join | ranges::views::transform([](auto const& contract) {
+	return m_base.contracts | ranges::views::values | ranges::views::join | ranges::views::transform([](auto const& contract) {
 		return &contract;
 	}) | ranges::to<std::vector>();
 }
 
 output::Contract const* StandardJSONOutputExt::contract(ContractName const& _name) const
 {
-	auto const& sourceUnits = m_base.contracts();
+	auto const& sourceUnits = m_base.contracts;
 	auto const [sourceName, contractName] = std::pair{std::string{_name.source()}, _name.contract()};
 
 	auto source = sourceUnits.find(sourceName);
@@ -53,7 +53,7 @@ output::Contract const* StandardJSONOutputExt::contract(ContractName const& _nam
 		return nullptr;
 
 	auto lookupName = contractName.empty() ? order->second.back() : _name;
-	auto contract = ranges::find_if(contracts, [&](auto const& contract) { return contract.name() == lookupName; });
+	auto contract = ranges::find_if(contracts, [&](auto const& contract) { return contract.name == lookupName; });
 
 	return (contract != contracts.end()) ? &*contract : nullptr;
 }

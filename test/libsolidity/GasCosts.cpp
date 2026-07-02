@@ -214,8 +214,8 @@ BOOST_AUTO_TEST_CASE(single_callvaluecheck)
 	soltestAssert(nonpayable);
 	soltestAssert(payable);
 
-	size_t bytecodeSizeNonpayable = nonpayable->evm().bytecode.object.size();
-	size_t bytecodeSizePayable = payable->evm().bytecode.object.size();
+	size_t bytecodeSizeNonpayable = nonpayable->evm.bytecode.object.size();
+	size_t bytecodeSizePayable = payable->evm.bytecode.object.size();
 
 	auto evmVersion = solidity::test::CommonOptions::get().evmVersion();
 	if (evmVersion < EVMVersion::shanghai())

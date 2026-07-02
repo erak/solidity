@@ -2824,8 +2824,8 @@ BOOST_AUTO_TEST_CASE(include_creation_bytecode_only_once)
 	solAssert(contractSingle);
 
 	BOOST_CHECK_LE(
-		static_cast<double>(contractDouble->evm().bytecode.object.size()),
-		1.2 * static_cast<double>(contractSingle->evm().bytecode.object.size())
+		static_cast<double>(contractDouble->evm.bytecode.object.size()),
+		1.2 * static_cast<double>(contractSingle->evm.bytecode.object.size())
 	);
 }
 

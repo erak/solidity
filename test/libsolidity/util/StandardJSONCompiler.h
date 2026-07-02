@@ -65,7 +65,7 @@ public:
 	explicit StandardJSONOutputExt(output::StandardJSONOutput _base):
 		m_base(std::move(_base))
 	{
-		m_compilationOrder = m_base.sources() | ranges::views::transform([](auto const& entry) {
+		m_compilationOrder = m_base.sources | ranges::views::transform([](auto const& entry) {
 			auto name = entry.first;
 			auto source = entry.second;
 
@@ -85,7 +85,7 @@ public:
 	///
 	std::vector<output::Error> const& errors() const
 	{
-		return m_base.errors();
+		return m_base.errors;
 	}
 
 	///
@@ -168,13 +168,15 @@ public:
 			while (!output.empty() && (output.back() == '\n' || output.back() == '\r'))
 				output.pop_back();
 
-			Output jsonOutput{Json::parse(output)};
-			m_output.emplace(StandardJSONOutputExt{std::move(jsonOutput)});
+			auto json = Json::parse(output);
+			auto deserialized = json.get<output::StandardJSONOutput>();
+			m_output.emplace(Output{std::move(deserialized)});
 		}
 		else
 		{
-			auto output = StandardCompiler{}.compile(_input);
-			m_output.emplace(StandardJSONOutputExt{std::move(output)});
+			auto json = StandardCompiler{}.compile(_input);
+			auto deserialized = json.get<output::StandardJSONOutput>();
+			m_output.emplace(Output{std::move(deserialized)});
 		}
 		return this->output();
 	}

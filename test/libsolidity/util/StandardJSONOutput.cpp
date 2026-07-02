@@ -33,27 +33,6 @@ using namespace solidity::frontend;
 using namespace solidity::frontend::test;
 using namespace solidity::frontend::test::output;
 
-ABI const& Contract::abi() const
-{
-	if (!m_abi)
-		m_abi = m_raw.at("abi");
-	return *m_abi;
-}
-
-std::string const& Contract::metadata() const
-{
-	if (!m_metadata)
-		m_metadata = m_raw.at("metadata");
-	return *m_metadata;
-}
-
-EVM const& Contract::evm() const
-{
-	if (!m_evm)
-		m_evm = m_raw.at("evm");
-	return *m_evm;
-}
-
 void output::from_json(Json const& _json, SourceLocation& _sourceLocation)
 {
 	_sourceLocation = SourceLocation{
@@ -174,9 +153,30 @@ void output::from_json(Json const& _json, EVM& _evm)
 	_evm.methodIdentifiers = _json.at("methodIdentifiers");
 }
 
+void output::from_json(Json const& _json, Contract& _contract)
+{
+	_contract.abi = _json.at("abi").get<ABI>();
+	_contract.evm = _json.at("evm").get<EVM>();
+	_contract.metadata = _json.at("metadata").get<std::string>();
+}
+
 void output::from_json(Json const& _json, Contracts& _contracts)
 {
     for (auto const& [source, contractsJson] : _json.items())
         for (auto const& [name, contractJson] : contractsJson.items())
-            _contracts[source].push_back(output::Contract{name, contractJson});
+		{
+            auto contract = contractJson.get<Contract>();
+			contract.name = name;
+			_contracts[source].push_back(contract);
+		}
+}
+
+void output::from_json(Json const& _json, StandardJSONOutput& _output)
+{
+	if (_json.contains("errors"))
+		_output.errors = _json.at("errors").get<Errors>();
+	if (_json.contains("sources"))
+		_output.sources = _json.at("sources").get<Sources>();
+	if (_json.contains("contracts"))
+		_output.contracts = _json.at("contracts").get<Contracts>();
 }

@@ -138,12 +138,12 @@ bytes SolidityExecutionFramework::multiSourceCompileContract(
 
 	auto const* contract = output.contract(lookupName);
 	soltestAssert(contract);
-	soltestAssert(contract->evm().bytecode.linkReferences.empty());
+	soltestAssert(contract->evm.bytecode.linkReferences.empty());
 
 	if (m_showMetadata)
-		std::cout << "metadata: " << contract->metadata() << std::endl;
+		std::cout << "metadata: " << contract->metadata << std::endl;
 
-	return contract->evm().bytecode.object;
+	return contract->evm.bytecode.object;
 }
 
 bytes SolidityExecutionFramework::compileContract(

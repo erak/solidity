@@ -226,7 +226,7 @@ std::vector<std::string> SemanticTest::eventSideEffectHook(FunctionCall const&) 
 	{
 		auto contracts = m_compiler.output().contracts();
 		auto entries = contracts | ranges::views::transform([](auto const* contract) {
-			return ranges::views::all(contract->abi());
+			return ranges::views::all(contract->abi);
 		}) | ranges::views::join;
 
 		auto events = entries | ranges::views::filter([](auto const& entry) {
@@ -436,7 +436,7 @@ TestCase::TestResult SemanticTest::runTest(
 			{
 				soltestAssert(
 					m_allowNonExistingFunctions ||
-					contract->evm().methodIdentifiers.contains(test.call().signature),
+					contract->evm.methodIdentifiers.contains(test.call().signature),
 					"The function " + test.call().signature + " is not known to the compiler"
 				);
 
@@ -465,7 +465,7 @@ TestCase::TestResult SemanticTest::runTest(
 			test.setRawBytes(std::move(output));
 
 			if (test.call().kind != FunctionCall::Kind::LowLevel)
-				test.setContractABI(output::ABI{contract->abi()});
+				test.setContractABI(contract->abi);
 		}
 
 		std::vector<std::string> effects;
