@@ -174,8 +174,10 @@ public:
 		}
 		else
 		{
-			auto json = StandardCompiler{}.compile(_input);
-			auto deserialized = json.get<output::StandardJSONOutput>();
+			Json input = _input;
+			auto raw = StandardCompiler{}.compile(input.dump());
+			auto parsed = Json::parse(raw);
+			auto deserialized = parsed.get<output::StandardJSONOutput>();
 			m_output.emplace(Output{std::move(deserialized)});
 		}
 		return this->output();
