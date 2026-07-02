@@ -141,7 +141,9 @@ set(libsolidity_util_sources
     libsolidity/util/TestFileParser.cpp
 	libsolidity/util/StandardJSONCompiler.cpp
 	libsolidity/util/StandardJSONCompiler.h
-    libsolidity/util/TestFileParser.h
+	libsolidity/util/JSONOutputParser.cpp
+	libsolidity/util/JSONOutputParser.h
+	libsolidity/util/TestFileParser.h
     libsolidity/util/TestFileParserTests.cpp
     libsolidity/util/TestFunctionCall.cpp
     libsolidity/util/TestFunctionCall.h

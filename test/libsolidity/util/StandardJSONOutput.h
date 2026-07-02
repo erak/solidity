@@ -243,22 +243,58 @@ struct StandardJSONOutput
 
 /// Enables JSON deserialization for standard output types.
 /// Supports parsing via `nlohmann::json`'s ADL pattern.
-void from_json(Json const&, SourceLocation&);
-void from_json(Json const&, Error&);
-void from_json(Json const&, Source&);
-void from_json(Json const&, ABIParameter&);
-void from_json(Json const&, ABIConstructor&);
-void from_json(Json const&, ABIFunction&);
-void from_json(Json const&, ABIFallback&);
-void from_json(Json const&, ABIReceive&);
-void from_json(Json const&, ABIEvent&);
-void from_json(Json const&, ABIError&);
-void from_json(Json const&, ABIEntry&);
-void from_json(Json const&, ByteOffset&);
-void from_json(Json const&, Bytecode&);
-void from_json(Json const&, EVM&);
-void from_json(Json const&, Contract&);
-void from_json(Json const&, Contracts&);
-void from_json(Json const&, StandardJSONOutput&);
+template<typename SubDocument>
+void from_json(SubDocument const&, SourceLocation&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, Error&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, Source&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, ABIParameter&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, ABIConstructor&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, ABIConstructor&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, ABIFunction&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, ABIFallback&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, ABIReceive&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, ABIEvent&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, ABIError&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, ABIEntry&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, ByteOffset&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, Bytecode&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, EVM&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, Contract&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, Contracts&);
+
+template<typename SubDocument>
+void from_json(SubDocument const&, StandardJSONOutput&);
 
 }

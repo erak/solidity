@@ -20,6 +20,7 @@
 
 #include <test/libsolidity/util/Common.h>
 #include <test/libsolidity/util/StandardJSONOutput.h>
+#include <test/libsolidity/util/JSONOutputParser.h>
 
 #include <libevmasm/Assembly.h>
 
@@ -168,8 +169,8 @@ public:
 			while (!output.empty() && (output.back() == '\n' || output.back() == '\r'))
 				output.pop_back();
 
-			auto json = Json::parse(output);
-			auto deserialized = json.get<output::StandardJSONOutput>();
+			auto parser = output::NlohmannParser{};
+			auto deserialized = output::extract<output::StandardJSONOutput>(parser, output);
 			m_output.emplace(Output{std::move(deserialized)});
 		}
 		else
