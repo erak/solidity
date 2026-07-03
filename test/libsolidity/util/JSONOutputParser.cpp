@@ -20,52 +20,56 @@ using namespace solidity::frontend::test::output;
 using namespace solidity::langutil;
 using namespace solidity::util;
 
+namespace {
+
+	template <typename T>
+	std::optional<T> getOptional(Json const& _json, std::string const& _key)
+	{
+		auto it = _json.find(_key);
+		if (it == _json.end())
+			return std::nullopt;
+		return it->get<T>();
+	}
+}
+
 void output::from_json(Json const& _json, output::SourceLocation& _sourceLocation)
 {
 	_sourceLocation = output::SourceLocation{
 		_json["file"],
 		_json["start"],
 		_json["end"],
-		_json.contains("message") ? std::optional{_json.at("message")} : std::nullopt
+		getOptional<std::string>(_json, "message")
 	};
 }
 
 void output::from_json(Json const& _json, output::Error& _error)
 {
-	if (_json.contains("sourceLocation"))
-		_error.sourceLocation = _json.at("sourceLocation");
-	if (_json.contains("secondarySourceLocations") && _json.at("secondarySourceLocations").is_array())
-		_error.secondarySourceLocations = _json.at("secondarySourceLocations");
-	if (_json.contains("errorCode"))
-		_error.errorCode = langutil::ErrorId{std::stoull(_json.at("errorCode").get<std::string>())};
+	_error.sourceLocation = getOptional<SourceLocation>(_json, "sourceLocation");
+	_error.secondarySourceLocations = getOptional<std::vector<SourceLocation>>(_json, "secondarySourceLocations");
+
+	if (auto errorCode = getOptional<std::string>(_json, "errorCode"))
+		_error.errorCode = langutil::ErrorId{std::stoull(*errorCode)};
 
 	auto type = langutil::Error::parseErrorType(_json.at("type"));
 	solAssert(type);
-
 	_error.type = type.value();
+
 	_error.message = _json.at("message");
 }
 
 void output::from_json(Json const& _json, Source& _source)
 {
 	_source.id = _json.at("id");
-	if (_json.contains("ast"))
-		_source.ast = _json.at("ast");
+	_source.ast = getOptional<Json>(_json, "ast");
 }
 
 void output::from_json(Json const& _json, ABIParameter& _param)
 {
     _param.name = _json.at("name").get<std::string>();
     _param.type = _json.at("type").get<std::string>();
-    _param.internalType = _json.contains("internalType") ?
-		std::optional{_json.at("internalType")} :
-		std::nullopt;
-    _param.indexed = _json.contains("indexed") ?
-		std::optional{_json.at("indexed").get<bool>()} :
-		std::nullopt;
-	_param.components = _json.contains("components") ?
-		std::optional{_json.at("components").get<std::vector<ABIParameter>>()} :
-		std::nullopt;
+    _param.internalType = getOptional<std::string>(_json, "internalType");
+    _param.indexed = getOptional<bool>(_json, "indexed");
+	_param.components = getOptional<std::vector<ABIParameter>>(_json, "components");
 }
 
 void output::from_json(Json const& _json, ABIConstructor& _constructor)
