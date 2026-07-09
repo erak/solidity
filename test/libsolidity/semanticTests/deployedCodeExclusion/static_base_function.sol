@@ -34,5 +34,6 @@ contract C is S {
 }
 // ====
 // bytecodeFormat: legacy
+// targetContract: C
 // ----
 // test() -> true

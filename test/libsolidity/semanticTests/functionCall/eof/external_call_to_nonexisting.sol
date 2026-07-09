@@ -22,6 +22,7 @@ contract C {
 }
 // ====
 // bytecodeFormat: >=EOFv1
+// targetContract: C
 // ----
 // constructor(), 1 ether ->
 // gas irOptimized: 88853

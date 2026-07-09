@@ -82,7 +82,18 @@ bytes SolidityExecutionFramework::multiSourceCompileContract(
 	}
 
 	if (_contractName.empty())
+	{
+		if (m_compiler.contractNames().size() != 1)
+		{
+			for (const auto& [key, value]: _sourceCode)
+			{
+				std::cout << "  \"" << key << "\" => \"" << value << "\"\n";
+			}
+			for (auto const& n: m_compiler.contractNames())
+				std::cout << n << std::endl;
+		}
 		solAssert(m_compiler.contractNames().size() == 1, "Empty contract names only allowed for sources with single contract definitions");
+	}
 
 	std::string contractName(_contractName.empty() ? m_compiler.lastContractName(_mainSourceName) : _contractName);
 	evmasm::LinkerObject obj = m_compiler.object(contractName);

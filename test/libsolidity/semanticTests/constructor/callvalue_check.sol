@@ -31,6 +31,7 @@ contract C {
 // ====
 // EVMVersion: >homestead
 // bytecodeFormat: legacy
+// targetContract: C
 // ----
 // f(uint256), 2000 ether: 0 -> true
 // f(uint256), 2000 ether: 100 -> false

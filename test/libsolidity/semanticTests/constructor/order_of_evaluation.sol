@@ -20,5 +20,6 @@ contract X is D, C, B, A {
 }
 // ====
 // bytecodeFormat: legacy,>=EOFv1
+// targetContract: X
 // ----
 // g() -> 0x20, 4, 1, 3, 2, 4

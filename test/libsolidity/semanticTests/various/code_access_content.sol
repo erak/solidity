@@ -38,6 +38,7 @@ contract C {
 }
 // ====
 // bytecodeFormat: legacy
+// targetContract: C
 // ----
 // testRuntime() -> true
 // gas legacy: 76575

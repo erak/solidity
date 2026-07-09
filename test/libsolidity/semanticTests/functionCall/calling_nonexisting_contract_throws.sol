@@ -23,6 +23,7 @@ contract C {
 }
 // ====
 // bytecodeFormat: legacy
+// targetContract: C
 // ----
 // f() -> FAILURE
 // g() -> FAILURE

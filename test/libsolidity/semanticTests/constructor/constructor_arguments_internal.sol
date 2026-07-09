@@ -34,6 +34,7 @@ contract Main {
 }
 // ====
 // bytecodeFormat: legacy,>=EOFv1
+// targetContract: Main
 // ----
 // getFlag() -> true
 // getName() -> "abc"

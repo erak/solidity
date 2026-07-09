@@ -25,6 +25,7 @@ contract C {
 // EVMVersion: >=constantinople
 // compileViaYul: also
 // bytecodeFormat: legacy
+// targetContract: C
 // ----
 // createDSalted(bytes32,uint256): 42, 64 ->
 // gas legacy: 78573
