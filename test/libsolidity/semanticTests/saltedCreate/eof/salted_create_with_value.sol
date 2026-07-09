@@ -19,5 +19,6 @@ contract A {
 }
 // ====
 // bytecodeFormat: >=EOFv1
+// targetContract: A
 // ----
 // f(), 10 ether -> 3007, 3008, 3009

@@ -33,5 +33,6 @@ contract C {
 }
 // ====
 // bytecodeFormat: legacy
+// targetContract: C
 // ----
 // test() -> true

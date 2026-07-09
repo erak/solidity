@@ -20,6 +20,7 @@ contract C {
 }
 // ====
 // bytecodeFormat: >=EOFv1
+// targetContract: C
 // ----
 // f() -> 7
 // h() -> 7

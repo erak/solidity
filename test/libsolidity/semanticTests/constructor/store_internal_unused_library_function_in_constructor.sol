@@ -18,5 +18,6 @@ contract C {
 }
 // ====
 // bytecodeFormat: legacy,>=EOFv1
+// targetContract: C
 // ----
 // t() -> 7

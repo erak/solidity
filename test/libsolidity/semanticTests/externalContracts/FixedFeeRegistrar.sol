@@ -75,6 +75,7 @@ contract FixedFeeRegistrar is Registrar {
 // ====
 // compileViaSSACFG: true
 // experimental: true
+// targetContract: FixedFeeRegistrar
 // ----
 // constructor()
 // gas irOptimized: 78076

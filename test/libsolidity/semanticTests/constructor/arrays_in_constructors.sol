@@ -24,6 +24,7 @@ contract Creator {
 }
 // ====
 // bytecodeFormat: legacy,>=EOFv1
+// targetContract: Creator
 // ----
 // f(uint256,address[]): 7, 0x40, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 -> 7, 8
 // gas irOptimized: 327784

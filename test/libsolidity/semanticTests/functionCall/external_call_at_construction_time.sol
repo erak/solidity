@@ -19,6 +19,7 @@ contract C {
 // ====
 // EVMVersion: >=byzantium
 // bytecodeFormat: legacy
+// targetContract: C
 // ----
 // f(uint256): 0 -> FAILURE
 // f(uint256): 1 -> FAILURE

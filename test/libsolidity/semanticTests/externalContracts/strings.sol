@@ -50,6 +50,7 @@ contract test {
 // ====
 // compileViaSSACFG: true
 // experimental: true
+// targetContract: test
 // ----
 // constructor()
 // gas irOptimized: 95303

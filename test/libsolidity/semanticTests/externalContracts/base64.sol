@@ -33,6 +33,7 @@ contract test {
 // EVMVersion: >=constantinople
 // compileViaSSACFG: true
 // experimental: true
+// targetContract: test
 // ----
 // constructor()
 // gas irOptimized: 79076

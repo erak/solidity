@@ -15,6 +15,7 @@ contract B {
 }
 // ====
 // bytecodeFormat: legacy,>=EOFv1
+// targetContract: B
 // ----
 // testIt() ->
 // test() -> 2

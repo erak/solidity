@@ -36,6 +36,7 @@ contract test {
 }
 // ====
 // bytecodeFormat: legacy
+// targetContract: test
 // ----
 // constructor(), 20 wei ->
 // gas irOptimized: 120218

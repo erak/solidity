@@ -14,6 +14,7 @@ contract C {
 }
 // ====
 // bytecodeFormat: legacy
+// targetContract: C
 // ----
 // f() -> 0x20, 0x20, 0x48aa5566000000
 // g() -> 0x20

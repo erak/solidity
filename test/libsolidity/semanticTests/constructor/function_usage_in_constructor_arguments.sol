@@ -21,5 +21,6 @@ contract Derived is Base {
 }
 // ====
 // bytecodeFormat: legacy,>=EOFv1
+// targetContract: Derived
 // ----
 // getA() -> 2

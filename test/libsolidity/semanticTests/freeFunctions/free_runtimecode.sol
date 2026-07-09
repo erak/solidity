@@ -13,5 +13,6 @@ contract D {
 }
 // ====
 // bytecodeFormat: legacy
+// targetContract: D
 // ----
 // f() -> true
