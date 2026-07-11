@@ -139,6 +139,8 @@ set(libsolidity_util_sources
     libsolidity/util/SoltestTypes.h
     libsolidity/util/TestFileParser.cpp
 	libsolidity/util/StandardJSONCompiler.h
+	libsolidity/util/InternalCompiler.h
+	libsolidity/util/IPCCompiler.h
 	libsolidity/util/StandardJSONOutputExt.cpp
 	libsolidity/util/StandardJSONOutputExt.h
     libsolidity/util/TestFileParser.h

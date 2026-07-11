@@ -226,7 +226,7 @@ std::vector<std::string> SemanticTest::eventSideEffectHook(FunctionCall const&) 
 {
 	using namespace output;
 
-	auto contracts = m_compiler.output().contracts();
+	auto contracts = compilerOutput().contracts();
 	auto entries = contracts | ranges::views::transform([](auto const* contract) {
 		return ranges::views::all(contract->abi);
 	}) | ranges::views::join;
@@ -418,7 +418,7 @@ TestCase::TestResult SemanticTest::runTest(
 		{
 			ContractName contractName{m_sources.mainSourceFile, m_targetContract.value_or("")};
 
-			auto const* contract = m_compiler.output().contract(contractName);
+			auto const* contract = compilerOutput().contract(contractName);
 			soltestAssert(contract);
 
 			bytes output;

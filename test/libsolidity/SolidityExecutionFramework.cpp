@@ -103,7 +103,9 @@ bytes SolidityExecutionFramework::multiSourceCompileContract(
 			}
 		}
 	};
-	StandardJSONOutputExt const& output = m_compiler.compile(m_compilerInput);
+	StandardJSONOutputExt const& output = std::visit([&](auto& compiler) -> StandardJSONOutputExt const& {
+		return compiler.compile(m_compilerInput);
+	}, m_compiler);
 
 	if (!output.success())
 	{

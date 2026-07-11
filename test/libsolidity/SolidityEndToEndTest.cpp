@@ -2815,7 +2815,7 @@ BOOST_AUTO_TEST_CASE(include_creation_bytecode_only_once)
 		}
 	)";
 	compileAndRun(sourceCode, 0, "Single");
-	auto const& output = m_compiler.output();
+	auto const& output = compilerOutput();
 	auto const* contractDouble = output.contract(std::string_view{"Double"});
 	auto const* contractSingle = output.contract("Single");
 	solAssert(contractDouble);

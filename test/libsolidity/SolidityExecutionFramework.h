@@ -33,12 +33,19 @@
 #include <test/ExecutionFramework.h>
 #include <test/libsolidity/util/StandardJSONOutput.h>
 #include <test/libsolidity/util/StandardJSONOutputExt.h>
+#include <test/libsolidity/util/InternalCompiler.h>
+#include <test/libsolidity/util/IPCCompiler.h>
 #include <test/libsolidity/util/StandardJSONCompiler.h>
+
+#include <variant>
 
 namespace solidity::frontend::test
 {
 
 using namespace solidity::test;
+
+using InternalJSONCompiler = StandardJSONCompiler<InternalCompiler, StandardJSONOutputExt>;
+using ExternalJSONCompiler = StandardJSONCompiler<IPCCompiler, StandardJSONOutputExt>;
 
 class SolidityExecutionFramework: public ExecutionFramework
 {
@@ -49,7 +56,7 @@ public:
 	{
 		auto solcPath = CommonOptions::get().solcPath;
 		if (solcPath)
-			m_compiler = StandardJSONCompiler<StandardJSONOutputExt>{*solcPath};
+			m_compiler = ExternalJSONCompiler{*solcPath};
 	}
 
 	explicit SolidityExecutionFramework(
@@ -65,7 +72,7 @@ public:
 	{
 		auto solcPath = CommonOptions::get().solcPath;
 		if (solcPath)
-			m_compiler = StandardJSONCompiler<StandardJSONOutputExt>{*solcPath};
+			m_compiler = ExternalJSONCompiler{*solcPath};
 	}
 
 	bytes const& compileAndRunWithoutCheck(
@@ -95,10 +102,17 @@ public:
 		std::optional<std::string> const& _mainSourceName = std::nullopt
 	);
 
+	StandardJSONOutputExt const& compilerOutput() const
+	{
+		return std::visit([](auto const& compiler) -> StandardJSONOutputExt const& {
+			return compiler.output();
+		}, m_compiler);
+	}
+
 protected:
 	std::optional<uint8_t> m_eofVersion;
 	StandardJSONInput m_compilerInput;
-	StandardJSONCompiler<StandardJSONOutputExt> m_compiler;
+	std::variant<InternalJSONCompiler, ExternalJSONCompiler> m_compiler;
 	bool m_compileViaYul = false;
 	bool m_compileViaSSACFG = false;
 	bool m_showMetadata = false;

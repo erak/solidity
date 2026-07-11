@@ -40,7 +40,7 @@ namespace solidity::frontend::test
 #define CHECK_DEPLOY_GAS(_gasNoOpt, _gasOpt, _evmVersion) \
 	do \
 	{ \
-		auto const& output = m_compiler.output(); \
+		auto const& output = compilerOutput(); \
 		auto const* contract = output.contract(); \
 		soltestAssert(contract); \
 		u256 metaCost = GasMeter::dataGas(bytes{}, true, _evmVersion); \
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(single_callvaluecheck)
 		}
 	)";
 	compileAndRun(sourceCode, 0, "Payable");
-	auto const& output = m_compiler.output();
+	auto const& output = compilerOutput();
 	auto const* nonpayable = output.contract("Nonpayable");
 	auto const* payable = output.contract("Payable");
 	soltestAssert(nonpayable);
